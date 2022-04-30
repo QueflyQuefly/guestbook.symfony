@@ -17,6 +17,8 @@ framework:
     php_errors:
         log: true
 
+    ide: vscode
+
 when@test:
     framework:
         test: true
