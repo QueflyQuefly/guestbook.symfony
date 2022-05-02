@@ -1,17 +1,17 @@
 version: '3'
 
 services:
-  mysql:
-    image: mysql:8
-    ports:
-      - 3308:3306
-    volumes:
-      - ~/apps/mysql:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=guestbook
-      - MYSQL_PASSWORD=guestbook
-      - MYSQL_USER=guestbook
-      - MYSQL_DATABASE=guestbook
+    mysql:
+        image: mysql:8
+        ports:
+            - 3308:3306
+        volumes:
+            - ~/apps/mysql:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=guestbook
+            - MYSQL_PASSWORD=guestbook
+            - MYSQL_USER=guestbook
+            - MYSQL_DATABASE=guestbook
 
 ###> doctrine/doctrine-bundle ###
 #   database:
