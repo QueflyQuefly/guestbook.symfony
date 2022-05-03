@@ -4,13 +4,32 @@
 
 {% block body %}
 
-    <h2>Give your feedback!</h2>
+  <p></p>
+  <h1 class="display-4">Welcome to GuestBook.symfony. Give your feedback!</h1>
+  <p></p>
+
+  <div class="row">
 
     {% for conference in conferences %}
-        <h4>{{ conference }}</h4>
-        <p>
-            <a href="{{ path('conference', { id: conference.id }) }}">View</a>
-        </p>
+
+    <div class="col-sm-4">
+      <div class="card">
+        <div class="card-header">
+          Conference in {{ conference.city }}
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">{{ conference }}</h5>
+          <p class="card-text">Comments: {{ conference.comments.count }}</p>
+          <a href="{{ path('conference', { slug: conference.slug }) }}" class="btn btn-primary">View</a>
+        </div>
+        <div class="card-footer text-muted">
+          {{ conference.year }}
+        </div>
+      </div>
+    </div>
+
     {% endfor %}
+  
+  </div>
 
 {% endblock %}
