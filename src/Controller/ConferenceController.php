@@ -3,12 +3,16 @@
 namespace App\Controller;
 
 use App\Entity\Conference;
+use App\Entity\Comment;
+use App\Form\CommentFormType;
 use App\Repository\ConferenceRepository;
 use App\Repository\CommentRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 class ConferenceController extends AbstractController
 {
@@ -16,12 +20,16 @@ class ConferenceController extends AbstractController
 
     private CommentRepository $commentRepository;
 
+    private EntityManagerInterface $entityManager;
+
     public function __construct(
         ConferenceRepository $conferenceRepository,
-        CommentRepository $commentRepository
+        CommentRepository $commentRepository,
+        EntityManagerInterface $entityManager
     ) {
         $this->conferenceRepository = $conferenceRepository;
         $this->commentRepository = $commentRepository;
+        $this->entityManager = $entityManager;
     }
 
     #[Route('/', name: 'homepage')]
@@ -33,14 +41,29 @@ class ConferenceController extends AbstractController
     #[Route('/conference/{slug}', name: 'conference')]
     public function show(Conference $conference, Request $request): Response
     {
-        $offset = max(0, $request->query->getInt('offset', 0));
+        $offset    = max(0, $request->query->getInt('offset', 0));
         $paginator = $this->commentRepository->getCommentPaginator($conference, $offset);
+        $comment   = new Comment();
+        $form      = $this->createForm(CommentFormType::class, $comment);
+        
+        $form->handleRequest($request);
 
-        return $this->render('conference/show.html.twig', [
+        if ($form->isSubmitted() && $form->isValid()) {
+            $comment->setConference($conference);
+            $comment->setPhotoFilename('fff');
+
+            $this->entityManager->persist($comment);
+            $this->entityManager->flush();
+
+            $this->redirectToRoute('conference', ['slug' => $conference->getSlug()]);
+        }
+
+        return $this->renderForm('conference/show.html.twig', [
             'conference' => $conference,
             'comments' => $paginator,
             'previous' => $offset - CommentRepository::PAGINATOR_PER_PAGE,
             'next' => min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
+            'comment_form' => $form,
         ]);
     }
 }
