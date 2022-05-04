@@ -7,6 +7,7 @@ use App\Entity\Comment;
 use App\Form\CommentFormType;
 use App\Repository\ConferenceRepository;
 use App\Repository\CommentRepository;
+use App\SpamChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,14 +24,18 @@ class ConferenceController extends AbstractController
 
     private EntityManagerInterface $entityManager;
 
+    private SpamChecker $spamChecker;
+
     public function __construct(
         ConferenceRepository $conferenceRepository,
         CommentRepository $commentRepository,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        SpamChecker $spamChecker
     ) {
         $this->conferenceRepository = $conferenceRepository;
         $this->commentRepository = $commentRepository;
         $this->entityManager = $entityManager;
+        $this->spamChecker = $spamChecker;
     }
 
     #[Route('/', name: 'homepage')]
@@ -68,6 +73,18 @@ class ConferenceController extends AbstractController
             }
 
             $this->entityManager->persist($comment);
+
+            $context = [
+                'user_ip' => $request->getClientIp(),
+                'user_agent' => $request->headers->get('user-agent'),
+                'referrer' => $request->headers->get('referer'),
+                'permalink' => $request->getUri(),
+            ];
+
+            if (2 === $this->spamChecker->getSpamScore($comment, $context)) {
+                throw new \RuntimeException('Blatant spam, go away!');    
+            }
+        
             $this->entityManager->flush();
 
             $this->redirectToRoute('conference', ['slug' => $conference->getSlug()]);
