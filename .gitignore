@@ -10,6 +10,8 @@
 ###< symfony/framework-bundle ###
 
 /public/uploads
+/test/test.php
+
 ###> symfony/phpunit-bridge ###
 .phpunit.result.cache
 /phpunit.xml

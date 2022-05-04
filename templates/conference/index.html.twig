@@ -4,9 +4,7 @@
 
 {% block body %}
 
-  <p></p>
-  <h1 class="display-4">Welcome to GuestBook.symfony. Give your feedback!</h1>
-  <p></p>
+  <h2 style='margin: 1em 0 1em 0'>Welcome to GuestBook.symfony. Give your feedback!</h2>
 
   <div class="row">
 
@@ -15,15 +13,12 @@
     <div class="col-sm-4">
       <div class="card">
         <div class="card-header">
-          Conference in {{ conference.city }}
+          Conference
         </div>
         <div class="card-body">
           <h5 class="card-title">{{ conference }}</h5>
           <p class="card-text">Comments: {{ conference.comments.count }}</p>
           <a href="{{ path('conference', { slug: conference.slug }) }}" class="btn btn-primary">View</a>
-        </div>
-        <div class="card-footer text-muted">
-          {{ conference.year }}
         </div>
       </div>
     </div>
