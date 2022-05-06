@@ -116,11 +116,17 @@
             "ref": "b131e6cbfe1b898a508987851963fff485986285"
         }
     },
+    "egulias/email-validator": {
+        "version": "3.1.2"
+    },
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.8"
     },
     "laminas/laminas-code": {
         "version": "4.5.1"
+    },
+    "lorenzo/pinky": {
+        "version": "1.0.6"
     },
     "monolog/monolog": {
         "version": "2.5.0"
@@ -380,6 +386,18 @@
     "symfony/intl": {
         "version": "v5.4.8"
     },
+    "symfony/mailer": {
+        "version": "5.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "4.3",
+            "ref": "97a61eabb351d7f6cb7702039bcfe07fe9d7e03c"
+        },
+        "files": [
+            "config/packages/mailer.yaml"
+        ]
+    },
     "symfony/maker-bundle": {
         "version": "1.40",
         "recipe": {
@@ -624,11 +642,20 @@
     "theseer/tokenizer": {
         "version": "1.2.1"
     },
+    "tijsverkoyen/css-to-inline-styles": {
+        "version": "2.2.4"
+    },
     "twbs/bootstrap": {
         "version": "v5.1.3"
     },
+    "twig/cssinliner-extra": {
+        "version": "v3.3.5"
+    },
     "twig/extra-bundle": {
         "version": "v3.3.8"
+    },
+    "twig/inky-extra": {
+        "version": "v3.3.5"
     },
     "twig/intl-extra": {
         "version": "v3.3.5"
