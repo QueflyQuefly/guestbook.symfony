@@ -21,7 +21,6 @@ when@test:
         dbal:
             # "TEST_TOKEN" is typically set by ParaTest
             # dbname_suffix: '_test'
-            # dbn_password: 'guest'
 
 when@prod:
     doctrine:

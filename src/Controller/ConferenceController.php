@@ -5,10 +5,12 @@ namespace App\Controller;
 use App\Entity\Conference;
 use App\Entity\Comment;
 use App\Form\CommentFormType;
+use App\Message\CommentMessage;
 use App\Repository\ConferenceRepository;
 use App\Repository\CommentRepository;
 use App\SpamChecker;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,16 +28,20 @@ class ConferenceController extends AbstractController
 
     private SpamChecker $spamChecker;
 
+    private MessageBusInterface $bus;
+
     public function __construct(
         ConferenceRepository $conferenceRepository,
         CommentRepository $commentRepository,
         EntityManagerInterface $entityManager,
-        SpamChecker $spamChecker
+        SpamChecker $spamChecker,
+        MessageBusInterface $bus
     ) {
         $this->conferenceRepository = $conferenceRepository;
         $this->commentRepository = $commentRepository;
         $this->entityManager = $entityManager;
         $this->spamChecker = $spamChecker;
+        $this->bus = $bus;
     }
 
     #[Route('/', name: 'homepage')]
@@ -73,6 +79,7 @@ class ConferenceController extends AbstractController
             }
 
             $this->entityManager->persist($comment);
+            $this->entityManager->flush();
 
             $context = [
                 'user_ip' => $request->getClientIp(),
@@ -81,13 +88,9 @@ class ConferenceController extends AbstractController
                 'permalink' => $request->getUri(),
             ];
 
-            if (2 === $this->spamChecker->getSpamScore($comment, $context)) {
-                throw new \RuntimeException('Blatant spam, go away!');    
-            }
-        
-            $this->entityManager->flush();
+            $this->bus->dispatch(new CommentMessage($comment->getId(), $context));
 
-            $this->redirectToRoute('conference', ['slug' => $conference->getSlug()]);
+            return $this->redirectToRoute('conference', ['slug' => $conference->getSlug()]);
         }
 
         return $this->renderForm('conference/show.html.twig', [
