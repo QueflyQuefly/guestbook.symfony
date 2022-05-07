@@ -1,7 +1,5 @@
-<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-    {% for conference in conferences %}
-        <li><a class="dropdown-item" href="{{ path('conference', { slug: conference.slug }) }}">{{ conference }}</a></li>
-    {% endfor %}
-    {# <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="#">Something else here</a></li> #}
-</ul>
+{% for conference in conferences %}
+    <a class="nav-conference" href="{{ path('conference', { slug: conference.slug }) }}">
+        {{ conference }}
+    </a>
+{% endfor %}
