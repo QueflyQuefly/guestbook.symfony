@@ -7,6 +7,13 @@
         {{ conference }} Conference
     </h2>
 
+    {% for message in app.flashes('notification') %}
+        <div class="alert alert-info alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+    {% endfor %}
+
     <div class="row">
         <div class="col-12 col-lg-8">
             {% if comments|length > 0 %}
