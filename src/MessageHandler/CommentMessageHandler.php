@@ -13,6 +13,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Notifier\NotifierInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Bridge\Twig\Mime\NotificationEmail;
 
 class CommentMessageHandler implements MessageHandlerInterface
 {
@@ -32,6 +34,8 @@ class CommentMessageHandler implements MessageHandlerInterface
 
     private ImageOptimizer $imageOptimizer;
 
+    private MailerInterface $mailer;
+
     private string $photoDir;
 
     public function __construct(
@@ -43,17 +47,19 @@ class CommentMessageHandler implements MessageHandlerInterface
         WorkflowInterface $commentStateMachine,
         NotifierInterface $notifier,
         ImageOptimizer $imageOptimizer,
+        MailerInterface $mailer,
         string $photoDir
     ) {
-        $this->entityManager = $entityManager;
-        $this->spamChecker = $spamChecker;
+        $this->entityManager     = $entityManager;
+        $this->spamChecker       = $spamChecker;
         $this->commentRepository = $commentRepository;
-        $this->logger = $logger;
-        $this->bus = $bus;
-        $this->workflow = $commentStateMachine;
-        $this->notifier = $notifier;
-        $this->imageOptimizer = $imageOptimizer;
-        $this->photoDir = $photoDir;
+        $this->logger            = $logger;
+        $this->bus               = $bus;
+        $this->workflow          = $commentStateMachine;
+        $this->notifier          = $notifier;
+        $this->imageOptimizer    = $imageOptimizer;
+        $this->mailer            = $mailer;
+        $this->photoDir          = $photoDir;
     }
 
     public function __invoke(CommentMessage $message)
@@ -87,6 +93,15 @@ class CommentMessageHandler implements MessageHandlerInterface
             if ($comment->getPhotoFilename()) {
                 $this->imageOptimizer->resize($this->photoDir.'/'.$comment->getPhotoFilename());
             }
+
+            // there a code to send an email to users that their comments are published
+            $this->mailer->send((new NotificationEmail())
+                ->subject('Your comment already published')
+                ->htmlTemplate('emails/comment_published.html.twig')
+                ->from('bot@guestbook.symfony')
+                ->to($comment->getEmail())
+                ->context(['comment' => $comment])
+            );
 
             $this->workflow->apply($comment, 'optimize');
             $this->entityManager->flush();
