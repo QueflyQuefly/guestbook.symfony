@@ -51,29 +51,35 @@ class ConferenceController extends AbstractController
         $this->notifier = $notifier;
     }
 
-    #[Route('/', name: 'homepage')]
+    #[Route('/')]
+    public function indexNoLocale(): Response
+    {
+        return $this->redirectToRoute('homepage', ['_locale' => 'en']);
+    }
+
+    #[Route('/{_locale<%app.supported_locales%>}/', name: 'homepage')]
     public function index(): Response
     {
         $response = $this->render('conference/index.html.twig',[
             'conferences' => $this->conferenceRepository->findAll(),
         ]);
-        $response->setSharedMaxAge(3600);
+        $response->setSharedMaxAge(10);
 
         return $response;
     }
 
-    #[Route('/conference_header', name: 'conference_header')]
+    #[Route('/{_locale<%app.supported_locales%>}/conference_header', name: 'conference_header')]
     public function conferenceHeader(): Response
     {
         $response = $this->render('conference/header.html.twig', [
             'conferences' => $this->conferenceRepository->findAll(),
         ]);
-        $response->setSharedMaxAge(3600);
+        $response->setSharedMaxAge(10);
 
         return $response;
     }
 
-    #[Route('/conference/{slug}', name: 'conference')]
+    #[Route('/{_locale<%app.supported_locales%>}/conference/{slug}', name: 'conference')]
     public function show(Conference $conference, Request $request, string $photoDir): Response
     {
         $offset    = max(0, $request->query->getInt('offset', 0));
